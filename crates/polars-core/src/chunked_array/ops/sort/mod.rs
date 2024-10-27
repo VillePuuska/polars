@@ -74,6 +74,7 @@ where
     T: Send,
     C: Send + Sync + Fn(&T, &T) -> Ordering,
 {
+    println!("oh no we're really sorting now");
     if parallel {
         POOL.install(|| match descending {
             true => slice.par_sort_by(|a, b| cmp(b, a)),
@@ -92,6 +93,7 @@ where
     T: Send,
     C: Send + Sync + Fn(&T, &T) -> Ordering,
 {
+    println!("wait what are we doing");
     if options.multithreaded {
         POOL.install(|| match options.descending {
             true => slice.par_sort_unstable_by(|a, b| cmp(b, a)),
@@ -162,7 +164,9 @@ fn sort_with_numeric<T>(ca: &ChunkedArray<T>, options: SortOptions) -> ChunkedAr
 where
     T: PolarsNumericType,
 {
+    println!("numeric sort");
     sort_with_fast_path!(ca, options);
+    println!("actually sorting");
     if ca.null_count() == 0 {
         let mut vals = ca.to_vec_null_aware().left().unwrap();
 
@@ -223,6 +227,7 @@ fn arg_sort_numeric<T>(ca: &ChunkedArray<T>, mut options: SortOptions) -> IdxCa
 where
     T: PolarsNumericType,
 {
+    println!("arg_sort_numeric called");
     options.multithreaded &= POOL.current_num_threads() > 1;
     if ca.null_count() == 0 {
         let iter = ca
