@@ -1977,6 +1977,12 @@ impl DataFrame {
 
         // a lot of indirection in both sorting and take
         let mut df = self.clone();
+
+        println!("Starting position for column sortings:");
+        for c in df.get_columns() {
+            println!("Col {} is sorted: {:#?}", c.name(), c.is_sorted_flag());
+        }
+
         let df = df.as_single_chunk_par();
         let mut take = match (by_column.len(), has_struct) {
             (1, false) => {
@@ -2027,6 +2033,12 @@ impl DataFrame {
         // the created indices are in bounds
         let mut df = unsafe { df.take_unchecked_impl(&take, sort_options.multithreaded) };
         set_sorted(&mut df);
+
+        println!("Final position for column sortings:");
+        for c in df.get_columns() {
+            println!("Col {} is sorted: {:#?}", c.name(), c.is_sorted_flag());
+        }
+
         Ok(df)
     }
 
