@@ -2848,11 +2848,15 @@ impl DataFrame {
                     .iter()
                     .filter(|s| {
                         let dtype = s.dtype();
-                        dtype.is_numeric() || matches!(dtype, DataType::Boolean)
+                        dtype.is_numeric()
+                            || matches!(dtype, DataType::Boolean)
+                            || (dtype.is_list()
+                                && (dtype.inner_dtype().unwrap().is_numeric()
+                                    || matches!(dtype.inner_dtype().unwrap(), DataType::Boolean)))
                     })
                     .cloned()
                     .collect::<Vec<_>>();
-                polars_ensure!(!columns.is_empty(), InvalidOperation: "'horizontal_mean' expected at least 1 numerical column");
+                polars_ensure!(!columns.is_empty(), InvalidOperation: "'horizontal_mean' expected at least 1 numerical or list[numerical] column");
                 let numeric_df = unsafe { DataFrame::_new_no_checks_impl(self.height(), columns) };
 
                 let sum = || numeric_df.sum_horizontal(null_strategy);

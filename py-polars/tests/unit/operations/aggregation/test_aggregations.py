@@ -84,6 +84,42 @@ def test_mean_horizontal_with_str_column() -> None:
     ).mean_horizontal().to_list() == [1.0, 1.5, 3.0]
 
 
+def test_mean_horizontal_with_lists() -> None:
+    df = pl.DataFrame(
+        {
+            "experiment_id": [1, 2],
+            "sensor1": [[1, 2, 3], [7, 8, 9]],
+            "sensor2": [[4, 5, 6], [10, 11, 12]],
+        }
+    )
+    assert_frame_equal(
+        df.with_columns(pl.mean_horizontal("sensor1", "sensor2").alias("avg_sensor")),
+        df.with_columns(
+            pl.Series("avg_sensor", values=[[2.5, 3.5, 4.5], [8.5, 9.5, 10.5]])
+        ),
+    )
+
+
+def test_mean_with_horizontal_lists_and_str_list() -> None:
+    df = pl.DataFrame(
+        {
+            "experiment_id": [1, 2],
+            "sensor1": [[1, 2, 3], [7, 8, 9]],
+            "sensor2": [["a", "b", "c"], ["foo", "bar", "baz"]],
+        }
+    )
+    assert_frame_equal(
+        df.with_columns(
+            pl.mean_horizontal("experiment_id", "sensor1", "sensor2").alias(
+                "avg_sensor"
+            )
+        ),
+        df.with_columns(
+            pl.Series("avg_sensor", values=[[1.0, 1.5, 2.0], [4.5, 5.0, 5.5]])
+        ),
+    )
+
+
 def test_list_aggregation_that_filters_all_data_6017() -> None:
     out = (
         pl.DataFrame({"col_to_group_by": [2], "flt": [1672740910.967138], "col3": [1]})

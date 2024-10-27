@@ -713,10 +713,9 @@ def test_raise_invalid_agg() -> None:
 def test_err_mean_horizontal_lists() -> None:
     df = pl.DataFrame(
         {
-            "experiment_id": [1, 2],
-            "sensor1": [[1, 2, 3], [7, 8, 9]],
-            "sensor2": [[4, 5, 6], [10, 11, 12]],
+            "experiment_id": ["1", "2"],
+            "sensor1": [["a", "b", "c"], ["foo", "bar", "baz"]],
         }
     )
     with pytest.raises(pl.exceptions.InvalidOperationError):
-        df.with_columns(pl.mean_horizontal("sensor1", "sensor2").alias("avg_sensor"))
+        df.mean_horizontal()
